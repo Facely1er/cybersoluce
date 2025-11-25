@@ -1,5 +1,5 @@
 [build]
-  command = "npm ci && npm run build"
+  command = "npm ci --include=dev && npm run build"
   publish = "dist"
   
 [build.environment]
@@ -105,10 +105,10 @@
 
 # Branch-specific builds
 [context.staging]
-  command = "npm ci && npm run build"
+  command = "npm ci --include=dev && npm run build"
   
 [context.deploy-preview]
-  command = "npm ci && npm run build"
+  command = "npm ci --include=dev && npm run build"
 
 # Functions (for serverless API endpoints)
 [functions]
