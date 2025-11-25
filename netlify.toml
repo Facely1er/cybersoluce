@@ -10,6 +10,9 @@
   HUSKY = "0"
   CI = "true"
 
+# Note: Extensions are configured in Netlify UI, not here
+# If Neon extension is installed, disable it in: Site Settings → Extensions
+
 # Build optimization
 [build.processing]
   skip_processing = false
