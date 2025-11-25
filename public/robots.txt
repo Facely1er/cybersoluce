@@ -1,0 +1,47 @@
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://cybersoluce.com/sitemap.xml
+
+# Disallow admin and private areas
+Disallow: /admin/
+Disallow: /api/
+Disallow: /private/
+Disallow: /_headers
+Disallow: /_redirects
+
+# Allow important pages for SEO
+Allow: /
+Allow: /about
+Allow: /pricing
+Allow: /contact
+Allow: /security
+Allow: /platform
+Allow: /demo
+Allow: /resources
+Allow: /docs
+Allow: /blog
+
+# Crawl delay (optional)
+Crawl-delay: 1
+
+# Specific rules for different bots
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Slurp
+Allow: /
+
+# Block bad bots
+User-agent: BadBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: AhrefsBot
+Disallow: /

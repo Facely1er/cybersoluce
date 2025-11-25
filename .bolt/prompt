@@ -1,0 +1,12 @@
+For all designs I ask you to make, have them be beautiful, not cookie cutter. Make webpages that are fully featured and worthy for production.
+
+By default, this template supports JSX syntax with Tailwind CSS classes, React hooks, and Lucide React for icons. Do not install other packages for UI themes, icons, etc unless absolutely necessary or I request them.
+
+Use icons from lucide-react for logos.
+
+Emphasize regional adaptability - Make sure of creating components that can adapt to different regions while maintaining a consistent core
+Request internationalization from the start - Build in language support and regional adaptations from the foundation, rather than adding them later
+Focus on data privacy compliance - Highlight the need for proper data handling across borders with appropriate privacy controls
+Consider regional differences in regulations - Ask for specific adaptations for major regulatory frameworks like GDPR (EU), CCPA (California), LGPD (Brazil), PIPL (China), etc.
+Include cultural considerations - Request that interfaces and content be culturally neutral or adaptable to avoid issues in global deployment
+Prioritize global infrastructure - Ensure the architecture supports distributed deployment with appropriate data sovereignty controls

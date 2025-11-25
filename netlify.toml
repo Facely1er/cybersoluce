@@ -1,0 +1,125 @@
+[build]
+  command = "npm ci && npm run build"
+  publish = "dist"
+  
+[build.environment]
+  NODE_VERSION = "20"
+  NPM_FLAGS = "--production=false"
+  NODE_ENV = "production"
+  VITE_APP_ENVIRONMENT = "production"
+  HUSKY = "0"
+  CI = "true"
+
+# Build optimization
+[build.processing]
+  skip_processing = false
+
+[build.processing.css]
+  bundle = true
+  minify = true
+
+[build.processing.js]
+  bundle = true
+  minify = true
+
+[build.processing.html]
+  pretty_urls = true
+
+# Security headers (backup - primary headers are in _headers file)
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
+
+# SPA routing
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+  force = false
+  
+  # Exclude API calls and static assets from SPA routing
+  conditions = {Role = ["admin"], Country = ["US"]}
+
+# API proxy (if needed)
+[[redirects]]
+  from = "/api/*"
+  to = "https://api.cybersoluce.com/:splat"
+  status = 200
+  force = true
+  headers = {X-From = "Netlify"}
+
+# Redirect HTTP to HTTPS
+[[redirects]]
+  from = "http://cybersoluce.com/*"
+  to = "https://cybersoluce.com/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "http://www.cybersoluce.com/*"
+  to = "https://www.cybersoluce.com/:splat"
+  status = 301
+  force = true
+
+# Redirect www to non-www (or vice versa based on preference)
+[[redirects]]
+  from = "https://www.cybersoluce.com/*"
+  to = "https://cybersoluce.com/:splat"
+  status = 301
+  force = true
+
+# Performance optimizations
+[build.processing.images]
+  compress = true
+
+# Edge functions (for advanced features)
+[[edge_functions]]
+  function = "security-headers"
+  path = "/*"
+
+# Environment-specific settings
+[context.production.environment]
+  VITE_APP_ENVIRONMENT = "production"
+  VITE_ENABLE_ANALYTICS = "true"
+  VITE_ENABLE_ERROR_TRACKING = "true"
+  VITE_ENABLE_PERFORMANCE_MONITORING = "true"
+
+[context.staging.environment]
+  VITE_APP_ENVIRONMENT = "staging"
+  VITE_ENABLE_ANALYTICS = "false"
+  VITE_ENABLE_ERROR_TRACKING = "true"
+  VITE_ENABLE_DEBUG_MODE = "true"
+
+[context.deploy-preview.environment]
+  VITE_APP_ENVIRONMENT = "development"
+  VITE_ENABLE_ANALYTICS = "false"
+  VITE_ENABLE_DEBUG_MODE = "true"
+
+# Branch-specific builds
+[context.staging]
+  command = "npm ci && npm run build"
+  
+[context.deploy-preview]
+  command = "npm ci && npm run build"
+
+# Functions (for serverless API endpoints)
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+# Forms (if using Netlify Forms)
+[forms]
+  settings = true
+
+# Analytics
+[analytics]
+  provider = "google"
+
+# Split testing
+[split_testing]
+  enabled = true

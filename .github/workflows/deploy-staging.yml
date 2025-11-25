@@ -1,0 +1,137 @@
+name: Deploy to Staging
+
+on:
+  push:
+    branches:
+      - staging
+      - develop
+  workflow_dispatch:
+    inputs:
+      force_deploy:
+        description: 'Force deployment even if tests fail'
+        required: false
+        default: 'false'
+
+env:
+  NODE_VERSION: '20'
+  VITE_APP_ENVIRONMENT: 'staging'
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run linter
+        run: npm run lint --if-present
+
+      - name: Run tests
+        run: npm run test:run --if-present
+
+      - name: Build application
+        run: npm run build
+        env:
+          VITE_APP_ENVIRONMENT: staging
+
+  deploy-netlify:
+    name: Deploy to Netlify Staging
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.event.inputs.force_deploy != 'true'
+    environment:
+      name: staging
+      url: https://staging.cybersoluce.com
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build application
+        run: npm run build
+        env:
+          VITE_APP_ENVIRONMENT: staging
+          VITE_SUPABASE_URL: ${{ secrets.STAGING_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.STAGING_SUPABASE_ANON_KEY }}
+          VITE_BACKEND_MODE: ${{ secrets.STAGING_BACKEND_MODE || 'supabase' }}
+          VITE_SENTRY_DSN: ${{ secrets.STAGING_SENTRY_DSN }}
+          VITE_SENTRY_ENVIRONMENT: staging
+          VITE_ENABLE_ERROR_TRACKING: 'true'
+          VITE_ENABLE_ANALYTICS: 'false'
+
+      - name: Deploy to Netlify
+        uses: netlify/actions/cli@master
+        with:
+          args: deploy --dir=dist --prod=false
+          secrets: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          publish-dir: './dist'
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_STAGING_SITE_ID }}
+
+      - name: Comment PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '🚀 Staging deployment completed! Preview: https://staging.cybersoluce.com'
+            })
+
+  deploy-vercel:
+    name: Deploy to Vercel Staging
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.event.inputs.force_deploy != 'true'
+    environment:
+      name: staging
+      url: https://staging-cybersoluce.vercel.app
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to Vercel
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_STAGING_PROJECT_ID }}
+          vercel-args: '--prod=false'
+          scope: ${{ secrets.VERCEL_ORG_ID }}
+
+  notify:
+    name: Notify Deployment Status
+    needs: [deploy-netlify, deploy-vercel]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Deployment Status
+        run: |
+          if [ "${{ needs.deploy-netlify.result }}" == "success" ] || [ "${{ needs.deploy-vercel.result }}" == "success" ]; then
+            echo "✅ Staging deployment successful"
+          else
+            echo "❌ Staging deployment failed"
+            exit 1
+          fi
+
