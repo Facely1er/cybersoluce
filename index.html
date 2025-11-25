@@ -113,12 +113,8 @@
     </script>
     
     <!-- Preload Critical Resources -->
-    <link rel="preload" href="/src/main.tsx" as="script" crossorigin />
+    <!-- Note: Vite automatically handles module preloading, these are handled by the build -->
     <link rel="preload" href="/cybersoluce.png" as="image" />
-    
-    <!-- Resource Hints -->
-    <link rel="prefetch" href="/src/pages/Dashboard.tsx" />
-    <link rel="prefetch" href="/src/pages/AssessmentPage.tsx" />
   </head>
   <body>
     <!-- Skip to main content for accessibility -->
