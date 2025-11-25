@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "npm run type-check && vite build",
     "preview": "vite preview",
-    "type-check": "node_modules/.bin/tsc --noEmit",
+    "type-check": "tsc --noEmit",
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:run": "vitest run",
